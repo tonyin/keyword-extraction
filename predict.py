@@ -5,7 +5,7 @@ import time
 import pandas
 import zipfile
 
-from naive_bayes import naive_bayes
+from classifiers import naive_bayes
 
 def parse():
     parser = argparse.ArgumentParser(description='Generate predictions from train data and output results to csv.')
