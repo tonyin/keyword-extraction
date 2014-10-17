@@ -38,8 +38,8 @@ def main():
     if zipfile.is_zipfile(args.t):
         with zipfile.ZipFile(args.t, 'r') as zf:
             f = args.t.split('/')[1].split('.')[0]
-            train = pandas.read_csv(zf.open(f + '.csv'), usecols=['Id', 'Tags'], index_col='Id')
-    pred = pandas.read_csv(args.pred)
+            train = pandas.read_csv(zf.open(f + '.csv'), usecols=['Id', 'Tags'])
+    pred = pandas.read_csv(args.p)
 
     results = pandas.merge(train, pred, how='left', on='Id', suffixes=['', '2'])
     results['Tags2'] = results['Tags2'].fillna('')
