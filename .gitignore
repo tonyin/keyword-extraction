@@ -6,7 +6,8 @@ __pycache__/
 *.so
 
 # Others
+env
+data
 .DS_Store
 .Python
-venv/
-data
+*.ipynb*
