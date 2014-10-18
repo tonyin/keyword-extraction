@@ -20,8 +20,10 @@ def main():
         with zipfile.ZipFile(args.t, 'r') as zf:
             f = args.t.split('/')[1].split('.')[0]
             train = pandas.read_csv(zf.open(f + '.csv'), usecols=['Id', 'Title', 'Tags'])
+
+    pred = train[['Id', 'Title']]
     
-    pred = naive_bayes(train)
+    pred = naive_bayes(train, pred)
     pred.to_csv(args.p)
 
 if __name__ == '__main__':
