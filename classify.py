@@ -5,14 +5,17 @@ import time
 import pandas as pd
 import zipfile as zf
 import string
+import re
 
-from classifiers import naive_bayes
+from classifiers import naive_bayes, rake
+
 
 def parse():
     parser = argparse.ArgumentParser(description='Generate predictions from train data and output results to csv.')
     parser.add_argument('-t', metavar='path_to_file', default='data/Train.zip', help='specify Train zip file (data/[filename])')
     parser.add_argument('-p', metavar='path_to_file', default='data/Pred.csv', help='specify Pred csv file (data/[filename])')
     return parser.parse_args()
+
 
 def main():
     args = parse()
@@ -33,14 +36,16 @@ def main():
             for c in kw:
                 if c in puncs:
                     puncs.remove(c)
-    puncs = ''.join(puncs)
-    train['Title'] = train['Title'].str.lower().str.replace('[' + puncs + ']', '').str.split(' ')
+    puncs = re.compile('[' + ''.join(puncs) + ']')
+    train['Title'] = train['Title'].str.lower().replace(puncs, '', regex=True).str.split(' ')
     
-    # Apply classifier(s)
-    pred = train[['Id', 'Title']]
+    # Load test data and apply classifier(s)
+    pred = train[['Id', 'Title']] # using Train data in lieu of other non-evualatable test data
     pred = naive_bayes(train, pred)
     
+    # Write results out to csv file
     pred.to_csv(args.p, columns=['Id', 'Tags'], index=False)
+
 
 if __name__ == '__main__':
     start = time.time()
