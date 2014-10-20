@@ -11,7 +11,7 @@ Kaggle [Keyword Extraction](https://www.kaggle.com/c/facebook-recruiting-iii-key
 2. Create virtual environment `virtualenv env`
 3. Install required libraries `pip install -r requirements.txt`
 4. Download `Train.zip` from the [Kaggle site](https://www.kaggle.com/c/facebook-recruiting-iii-keyword-extraction/data) to local folder `data`
-5. Run `classify.py` to create `Pred.csv` file of predictions
+5. Run `classify.py` to create `data/Pred.csv` file of predictions
 6. Evaluate predictions with `mean_f1.py`
 
 ###### Assumptions
