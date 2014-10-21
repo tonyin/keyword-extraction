@@ -10,4 +10,5 @@ env
 data
 .DS_Store
 .Python
-*.ipynb*
+*.ipynb
+*.json

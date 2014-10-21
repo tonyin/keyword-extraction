@@ -5,6 +5,7 @@ import time
 import pandas as pd
 import zipfile as zf
 
+
 def parse():
     parser = argparse.ArgumentParser(description='Evaluate predictions of train data using Mean F1-Score metric.')
     parser.add_argument('-t', metavar='filename', default='data/Train.zip', help='specify Train zip file')
@@ -15,21 +16,21 @@ def precision(a, b):
     true_positives = len(set(a).intersection(b))
     predicted_positives = len(b)
     if predicted_positives == 0:
-        return 0
+        return 0.0
     return 1.0 * true_positives / predicted_positives
 
 def recall(a, b):
     true_positives = len(set(a).intersection(b))
     actual_positives = len(a)
     if actual_positives == 0:
-        return 0
+        return 0.0
     return 1.0 * true_positives / actual_positives
 
 def f1(a, b):
     p = precision(a, b)
     r = recall(a, b)
-    if p == 0 or r == 0:
-        return 0
+    if p == 0 and r == 0:
+        return 0.0
     return 2.0 * (p * r) / (p + r)
 
 def main():
@@ -49,7 +50,6 @@ def main():
     mean_f1 = sum(results['F1']) / results['F1'].count()
 
     print 'Mean F1 Score: {0:.5f}'.format(mean_f1)
-
 
 if __name__ == '__main__':
     start = time.time()

@@ -3,35 +3,40 @@
 import pandas as pd
 import numpy as np
 import string
-from common import get_kw_freqs
+import re
 
-PROB = 0.0 # Probability threshold for accepting a keyword as a tag, given it exists in the title
+PRECISION = 0.2 # precision threshold for accepting a keyword to tag
 
 
-def nb_train(train):
+def get_unused_puncs(tags):
+    puncs = list(string.punctuation)
+    for s in tags:
+        for kw in s:
+            for c in kw:
+                if c in puncs:
+                    puncs.remove(c)
+    return puncs
 
-    # Get keyword frequencies
-    kw_freqs = get_kw_freqs(train)
+def nb_classify(test, keywords):
 
-    # Make list of keywords that pass the PROB threshold for keyword acceptance
+    # Clean titles
+    unused_puncs = get_unused_puncs(keywords.keys())
+    test['Title'].str.lower().replace(unused_puncs, '', regex=True).str.split(' ')
+    
+    # Get accepted kws
     nb_keywords = []
-    for kw in kw_freqs:
-        title_only = kw_freqs[kw]['title']
-        both = kw_freqs[kw]['both']
-        if both + title_only == 0: continue
-        prob_tagged = 1.0 * both / (both + title_only)
-        if prob_tagged > PROB:
+    for kw in keywords:
+        true_pos = keywords[kw]['both']
+        pred_pos = keywords[kw]['both'] + keywords[kw]['title']
+        actu_pos = keywords[kw]['both'] + keywords[kw]['tag']
+        if pred_pos == 0: continue
+        if 1.0 * true_pos / pred_pos >= PRECISION:
             nb_keywords.append(kw)
 
-    return nb_keywords
-
-
-def naive_bayes(train, pred):
-    """Add keyword to predicted tags if the keyword passes a conditional probability threshold (PROB)."""
-
-    nb_keywords = nb_train(train)
+    # Apply filters
     nb_filter = lambda x: list(set(x).intersection(nb_keywords))
     str_join = lambda x: ' '.join(x)
-    pred['Tags'] = pd.Series(pred['Title'].map(nb_filter).map(str_join))
+    pred = test['Id']
+    pred['Tags'] = pd.Series(test['Title'].map(nb_filter).map(str_join))
 
     return pred
