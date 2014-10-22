@@ -1,42 +1,41 @@
 #!/usr/bin/env python
 
-import pandas as pd
-import numpy as np
 import string
 import re
+import random
+import pandas as pd
+import numpy as np
 
-PRECISION = 0.2 # precision threshold for accepting a keyword to tag
 
-
-def get_unused_puncs(tags):
+def get_unused_puncs(keywords):
     puncs = list(string.punctuation)
-    for s in tags:
-        for kw in s:
-            for c in kw:
-                if c in puncs:
-                    puncs.remove(c)
+    for kw in keywords:
+        for c in kw:
+            if c in puncs:
+                puncs.remove(c)
     return puncs
 
 def nb_classify(test, keywords):
 
     # Clean titles
     unused_puncs = get_unused_puncs(keywords.keys())
-    test['Title'].str.lower().replace(unused_puncs, '', regex=True).str.split(' ')
+    unused_puncs = re.compile('[' + ''.join(unused_puncs) + ']')
+    test['Title'] = test['Title'].str.lower().replace(unused_puncs, '', regex=True).str.split(' ')
     
-    # Get accepted kws
-    nb_keywords = []
+    # Calculate posterior probability (probability of kw in tags, given it is in title)
     for kw in keywords:
-        true_pos = keywords[kw]['both']
-        pred_pos = keywords[kw]['both'] + keywords[kw]['title']
-        actu_pos = keywords[kw]['both'] + keywords[kw]['tag']
-        if pred_pos == 0: continue
-        if 1.0 * true_pos / pred_pos >= PRECISION:
-            nb_keywords.append(kw)
+        if keywords[kw]['both'] + keywords[kw]['title'] == 0:
+            keywords[kw]['p'] = 0.0
+        else:
+            keywords[kw]['p'] = 1.0 * keywords[kw]['both'] / (keywords[kw]['both'] + keywords[kw]['title'])
 
-    # Apply filters
-    nb_filter = lambda x: list(set(x).intersection(nb_keywords))
+    # Generate predicted tags based on probabilities
+    kws_in_title = lambda x: list(set(x).intersection(keywords.keys()))
+    random_prob = lambda x: True if random.random() < x else False
+    posterior_p = lambda x: filter(lambda y: random_prob(keywords[y]['p']), x)
     str_join = lambda x: ' '.join(x)
-    pred = test['Id']
-    pred['Tags'] = pd.Series(test['Title'].map(nb_filter).map(str_join))
+
+    pred = test[['Id']]
+    pred['Tags'] = pd.Series(test['Title'].map(kws_in_title).map(posterior_p).map(str_join))
 
     return pred

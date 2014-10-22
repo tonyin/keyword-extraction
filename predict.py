@@ -2,29 +2,25 @@
 
 import argparse
 import time
-import pandas as pd
-import zipfile as zf
 import string
 import re
+import pandas as pd
 
-from classifiers import nb_classify
+from classifiers import load_model
+from classifiers.naive_bayes import nb_classify
 
 
 def parse():
     parser = argparse.ArgumentParser(description='Generate predictions from models for test data and output results to csv.')
-    parser.add_argument('-t', metavar='path_to_file', default='data/Train.zip', help='specify Test zip file (data/[filename])')
-    parser.add_argument('-p', metavar='path_to_file', default='data/Pred.csv', help='specify Pred csv file (data/[filename])')
+    parser.add_argument('-test', metavar='path_to_file', default='data/Test.csv', help='specify Test csv file')
+    parser.add_argument('-p', metavar='path_to_file', default='data/Pred.csv', help='specify Pred csv file')
     return parser.parse_args()
 
 def main():
     args = parse()
 
     # Load test data
-    name = args.t.split('/')[1].split('.')[0]
-    if zf.is_zipfile(args.t):
-        with zf.ZipFile(args.t, 'r') as zipf:
-            with zipf.open(name + '.csv') as f:
-                test = pd.read_csv(f, usecols=['Id', 'Title'])
+    test = pd.read_csv(args.test, usecols=['Id', 'Title'])
     
     # Generate predictions and write to csv
     keywords = load_model('keywords')

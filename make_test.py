@@ -3,15 +3,14 @@
 import argparse
 import time
 import pandas as pd
+import numpy as np
 import zipfile as zf
-
-from classifiers import load_model, save_model
-from classifiers.tags import tags_train
 
 
 def parse():
-    parser = argparse.ArgumentParser(description='Generate prediction models from training data and output results to json.')
-    parser.add_argument('-t', metavar='path_to_file', default='data/Train.zip', help='specify Train zip file')
+    parser = argparse.ArgumentParser(description='Generate test csv from training data and output results to csv.')
+    parser.add_argument('-t', metavar='path_to_file', default='data/Train.zip', help='specify Train zip file (data/filename])')
+    parser.add_argument('-test', metavar='path_to_file', default='data/Test.csv', help='specify Test csv file (data/[filename])')
     return parser.parse_args()
 
 def main():
@@ -24,11 +23,9 @@ def main():
             with zipf.open(name + '.csv') as f:
                 train = pd.read_csv(f, usecols=['Id', 'Title', 'Tags'])
 
-    # Train models and write to json
-    kw_model = load_model('keywords')
-    kw_model = tags_train(train, kw_model)
-    save_model('keywords', kw_model)
-
+    test = train.loc[np.random.choice(train.index, 1000000, replace=False)]
+    test.to_csv(args.test, columns=['Id', 'Title', 'Tags'], index=False)
+    
 if __name__ == '__main__':
     start = time.time()
     main()

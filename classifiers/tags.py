@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 
-import numpy as np
 import string
 import re
+import numpy as np
 
 
-def get_unused_puncs(tags):
+def get_unused_puncs(keywords):
     puncs = list(string.punctuation)
-    for s in tags:
-        for kw in s:
-            for c in kw:
-                if c in puncs:
-                    puncs.remove(c)
+    for kw in keywords:
+        for c in kw:
+            if c in puncs:
+                puncs.remove(c)
     return puncs
 
 def tags_train(train, kw_model):
