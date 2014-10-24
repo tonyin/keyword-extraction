@@ -55,7 +55,7 @@ def features_train(train, keywords):
         for kw in tag_kws:
             if '-' in kw:
                 kw_new = kw.replace('-', ' ')
-                if len(set(kw_new)) == len(set(kw_new).intersection(title_kws)):
+                if kw_new.issubset(title_kws):
                     keywords[kw].setdefault('both', 0)
                     keywords[kw]['both'] += 1
 
@@ -74,8 +74,8 @@ def features_train(train, keywords):
         else:
             # Posterior probability 'p' = both / (both + title)
             keywords[kw]['p'] = 1.0 * keywords[kw]['both'] / total_title
-            # tf-idf 'ti' = (both + title) * ln( n / (both + title) )
-            keywords[kw]['ti'] = 1.0 * total_title * np.log(n / total_title)
+            # tf-idf 'ti' = both * ln( n / (both + title) )
+            keywords[kw]['ti'] = 1.0 * keywords[kw]['both'] * np.log(n / total_title)
             if keywords[kw]['ti'] <= 1:
                 del keywords[kw]
 

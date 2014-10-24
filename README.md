@@ -4,9 +4,7 @@ keyword-extraction
 Kaggle [Keyword Extraction](https://www.kaggle.com/c/facebook-recruiting-iii-keyword-extraction) competition by Facebook. Implemented in Python.
 
 Features: known kws, multi-word kws, unknown kws in title
-
 Scoring: Naive Bayes probability, tf-idf
-
 Heuristics: #Tags >= 1, 'tag-dash-kws' == 'tag dash kws', c#
 
 ---
